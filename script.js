@@ -6,9 +6,12 @@ const startButton = document.querySelector('button');
 let lastMole;
 let score = 0;
 let timeUp = false;
+let isStartPressed = false;
+
 
 function startGame() {
     timeUp = false;
+    if (isStartPressed) timeUp = true;
     showMole();
     score = 0
     scoreBoard.textContent = score;
@@ -33,19 +36,30 @@ function randomMole(moles) {
 function showMole() {
     const time = randomTime(400, 1000);
     const mole = randomMole(moles);
+
     mole.classList.add('mole_up');
+    
     setTimeout(() => {
         mole.classList.remove('mole_up');
         if (!timeUp) showMole();
     }, time);
+    mole.addEventListener('click', catchMole);
 }
 
 function catchMole(e) {
-    if(e.isTrusted) {
+    moles.forEach(mole => mole.removeEventListener('click', catchMole));
+    if (e.isTrusted) {
         score++;
         scoreBoard.textContent = score;
     }
 }
 
-startButton.addEventListener('click', startGame);
-moles.forEach(mole => mole.addEventListener('click', catchMole));
+startButton.addEventListener('click', () => {
+    if (startButton.textContent === 'Start') {
+        startGame();
+        startButton.textContent = 'Stop';
+    } else if (startButton.textContent === 'Stop') {
+        timeUp = true;
+        startButton.textContent = 'Start';
+    }
+});
